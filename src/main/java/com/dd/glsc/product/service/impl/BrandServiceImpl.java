@@ -1,5 +1,7 @@
 package com.dd.glsc.product.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.dd.glsc.product.entity.AttrGroupEntity;
 import com.dd.glsc.product.entity.vo.BrandEntityVO;
 import org.springframework.stereotype.Service;
 import java.util.Map;
@@ -19,10 +21,17 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<BrandEntity> page = this.page(
-                new Query<BrandEntity>().getPage(params),
-                new QueryWrapper<BrandEntity>()
-        );
+        String key = (String) params.get("key");
+        QueryWrapper<BrandEntity> brandEntityQueryWrapper = new QueryWrapper<>();
+        if (!StrUtil.isEmpty(key)) {
+            brandEntityQueryWrapper.lambda().like(BrandEntity::getBrandId, key)
+                    .or()
+                    .like(BrandEntity::getName, key)
+                    .or()
+                    .like(BrandEntity::getLogo, key)
+                    .or()
+                    .like(BrandEntity::getDescript, key);
+        }
 /*        IPage<BrandEntityVO> resultPage = page.convert(brandEntity -> {
             BrandEntityVO vo = new BrandEntityVO();
             vo.setBrandId(brandEntity.getBrandId());
@@ -34,6 +43,10 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
             vo.setSort(brandEntity.getSort());
             return vo;
         });*/
+        IPage<BrandEntity> page = this.page(
+                new Query<BrandEntity>().getPage(params),
+                brandEntityQueryWrapper
+        );
         return new PageUtils(page);
     }
 

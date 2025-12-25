@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
+import com.dd.common.valid.group.AddGroup;
+import com.dd.common.valid.group.UpdateGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,12 +39,12 @@ public class CategoryBrandRelationController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @RequestMapping("/catelog/list")
     //@RequiresPermissions("product:categorybrandrelation:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public BaseResponse<PageUtils> list(@RequestParam Map<String, Object> params){
         PageUtils page = categoryBrandRelationService.queryPage(params);
 
-        return R.ok().put("page", page);
+        return ResultUtils.success(page);
     }
 
 
@@ -59,10 +64,10 @@ public class CategoryBrandRelationController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:categorybrandrelation:save")
-    public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
-		categoryBrandRelationService.save(categoryBrandRelation);
+    public BaseResponse save(@Validated({AddGroup.class}) @RequestBody CategoryBrandRelationEntity categoryBrandRelation){
+		categoryBrandRelationService.saveCategoryBrandRelation(categoryBrandRelation);
 
-        return R.ok();
+        return ResultUtils.success();
     }
 
     /**
@@ -70,7 +75,7 @@ public class CategoryBrandRelationController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:categorybrandrelation:update")
-    public R update(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
+    public R update(@Validated({UpdateGroup.class})@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
 		categoryBrandRelationService.updateById(categoryBrandRelation);
 
         return R.ok();

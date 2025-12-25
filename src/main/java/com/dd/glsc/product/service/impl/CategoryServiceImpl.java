@@ -4,10 +4,7 @@ import com.dd.glsc.product.entity.vo.CategoryVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -97,6 +94,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
         //逻辑删除
         baseMapper.deleteByIds(asList);
+    }
+
+    @Override
+    public Long[] findCatelogPath(Long catelogId) {
+        List<Long> path = new ArrayList<>();
+        // 递归查找完整路径
+        findParentPath(catelogId, path);
+
+        // 反转链表
+        Collections.reverse(path);
+        return path.toArray(new Long[0]);
+    }
+
+    private void findParentPath(Long catelogId, List<Long> path) {
+        CategoryEntity categoryEntity = this.getById(catelogId);
+        path.add(categoryEntity.getCatId());
+        if (categoryEntity.getParentCid() != 0) {
+            findParentPath(categoryEntity.getParentCid(), path);
+        }
     }
 
     /**

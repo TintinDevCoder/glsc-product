@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.dd.glsc.product.entity.CategoryBrandRelationEntity;
 import com.dd.glsc.product.entity.vo.CategoryVO;
+import com.dd.glsc.product.service.CategoryBrandRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +38,8 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
     /**
      * 查出所有的分类以及子分类，以树形结构组装起来
      */
@@ -79,10 +86,18 @@ public class CategoryController {
      * 修改
      */
     @RequestMapping("/update")
+    @Transactional
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category){
 		categoryService.updateById(category);
 
+        // 同步更新其他关联表中的数据
+        if (!StrUtil.isEmpty(category.getName())) {
+            categoryBrandRelationService.update(new UpdateWrapper<CategoryBrandRelationEntity>().lambda()
+                    .eq(CategoryBrandRelationEntity::getCatelogId, category.getCatId())
+                    .set(CategoryBrandRelationEntity::getCatelogName, category.getName())
+            );
+        }
         return R.ok();
     }
 

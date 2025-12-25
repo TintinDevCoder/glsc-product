@@ -4,13 +4,18 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.dd.common.common.BaseResponse;
 import com.dd.common.common.ResultUtils;
 import com.dd.common.valid.group.AddGroup;
 import com.dd.common.valid.group.UpdateGroup;
 import com.dd.common.valid.group.UpdateStatus;
+import com.dd.glsc.product.entity.CategoryBrandRelationEntity;
 import com.dd.glsc.product.entity.dto.BrandStatusDTO;
+import com.dd.glsc.product.service.CategoryBrandRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +42,8 @@ public class BrandController {
     @Autowired
     private BrandService brandService;
 
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
     /**
      * 列表
      */
@@ -90,10 +97,17 @@ public class BrandController {
      * 修改
      */
     @RequestMapping("/update")
+    @Transactional
     //@RequiresPermissions("product:brand:update")
     public R update(@Validated({UpdateGroup.class})@RequestBody BrandEntity brand){
 		brandService.updateById(brand);
-
+        // 同步更新其他关联表中的数据
+        if (!StrUtil.isEmpty(brand.getName())) {
+            categoryBrandRelationService.update(new UpdateWrapper<CategoryBrandRelationEntity>().lambda()
+                    .eq(CategoryBrandRelationEntity::getBrandId, brand.getBrandId())
+                    .set(CategoryBrandRelationEntity::getBrandName, brand.getName())
+            );
+        }
         return R.ok();
     }
 

@@ -5,7 +5,15 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.dd.common.valid.NotOnlyBlank;
+import com.dd.common.valid.group.AddGroup;
+import com.dd.common.valid.group.UpdateGroup;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  * 品牌分类关联
@@ -23,14 +31,18 @@ public class CategoryBrandRelationEntity implements Serializable {
 	 * 
 	 */
 	@TableId
+    @Null(message = "新增不能指定id", groups = {AddGroup.class})
+    @NotNull(message = "修改id必须有值", groups = {UpdateGroup.class})
 	private Long id;
 	/**
 	 * 品牌id
 	 */
+    @NotNull(message = "品牌id必须有值", groups = {AddGroup.class})
 	private Long brandId;
 	/**
 	 * 分类id
 	 */
+    @NotNull(message = "分类id必须有值", groups = {AddGroup.class})
 	private Long catelogId;
 	/**
 	 * 
