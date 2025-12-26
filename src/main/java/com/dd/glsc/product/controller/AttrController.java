@@ -4,7 +4,19 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
+import com.dd.common.valid.group.AddGroup;
+import com.dd.common.valid.group.UpdateGroup;
+import com.dd.glsc.product.entity.AttrAttrgroupRelationEntity;
+import com.dd.glsc.product.entity.dto.AttrAddAndUpdateDTO;
+import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
+import com.dd.glsc.product.service.AttrAttrgroupRelationService;
+import com.dd.glsc.product.service.CategoryService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +43,11 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
+    @Autowired
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
+
+    @Autowired
+    private CategoryService categoryService;
     /**
      * 列表
      */
@@ -42,16 +59,24 @@ public class AttrController {
         return R.ok().put("page", page);
     }
 
+    @RequestMapping("/{type}/list/{catId}")
+    //@RequiresPermissions("product:attr:list")
+    public BaseResponse<PageUtils> list(@RequestParam Map<String, Object> params,
+                                   @PathVariable("catId") Long catId,
+                                   @PathVariable("type") String type){
+        PageUtils page = attrService.queryPage(params, catId, type);
+
+        return ResultUtils.success(page);
+    }
 
     /**
      * 信息
      */
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
-    public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
-
-        return R.ok().put("attr", attr);
+    public BaseResponse<AttrAndAttrGroupVOAndUpdate> info(@PathVariable("attrId") Long attrId){
+        AttrAndAttrGroupVOAndUpdate attr = attrService.getByIdWithGroup(attrId);
+        return ResultUtils.success(attr);
     }
 
     /**
@@ -59,10 +84,10 @@ public class AttrController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:attr:save")
-    public R save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
-
-        return R.ok();
+    @Transactional
+    public BaseResponse save(@Validated(value = {AddGroup.class}) @RequestBody AttrAddAndUpdateDTO attrAddAndUpdateDTO){
+        attrService.saveAttr(attrAddAndUpdateDTO);
+        return ResultUtils.success();
     }
 
     /**
@@ -70,10 +95,10 @@ public class AttrController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attr:update")
-    public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
+    public BaseResponse update(@Validated(value = {UpdateGroup.class}) @RequestBody AttrAddAndUpdateDTO attr){
+		attrService.updateAttr(attr);
 
-        return R.ok();
+        return ResultUtils.success();
     }
 
     /**

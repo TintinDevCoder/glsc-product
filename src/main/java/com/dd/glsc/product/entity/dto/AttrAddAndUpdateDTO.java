@@ -1,11 +1,4 @@
-package com.dd.glsc.product.entity;
-
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Date;
+package com.dd.glsc.product.entity.dto;
 
 import com.dd.common.valid.ListValue;
 import com.dd.common.valid.NotOnlyBlank;
@@ -18,6 +11,7 @@ import org.hibernate.validator.constraints.URL;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import java.io.Serializable;
 
 /**
  * 商品属性
@@ -27,14 +21,12 @@ import javax.validation.constraints.Null;
  * @date 2025-12-05 10:16:51
  */
 @Data
-@TableName("pms_attr")
-public class AttrEntity implements Serializable {
+public class AttrAddAndUpdateDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 属性id
 	 */
-	@TableId
     @Null(message = "新增不能指定属性id", groups = {AddGroup.class})
     @NotNull(message = "修改属性id必须有值", groups = {UpdateGroup.class})
 	private Long attrId;
@@ -74,7 +66,6 @@ public class AttrEntity implements Serializable {
 	/**
 	 * 启用状态[0 - 禁用，1 - 启用]
 	 */
-    @TableLogic(value = "1", delval = "0")
     @ListValue(vals = {0,1}, groups = {AddGroup.class, UpdateStatus.class})
 	private Integer enable;
 	/**
@@ -87,5 +78,8 @@ public class AttrEntity implements Serializable {
 	 */
     @ListValue(vals = {0,1}, groups = {AddGroup.class, UpdateStatus.class})
 	private Integer showDesc;
-
+    /**
+     * 属性分组Id
+     */
+    private Long attrGroupId;
 }

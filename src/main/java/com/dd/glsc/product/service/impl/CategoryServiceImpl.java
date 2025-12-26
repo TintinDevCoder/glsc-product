@@ -1,5 +1,7 @@
 package com.dd.glsc.product.service.impl;
 
+import com.dd.common.common.BusinessException;
+import com.dd.common.common.ErrorCode;
 import com.dd.glsc.product.entity.vo.CategoryVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,22 @@ import com.dd.glsc.product.service.CategoryService;
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+    @Override
+    public List<Long> findCategoryPath(Long catId3) {
+        List<Long> result = new LinkedList<>();
+        CategoryEntity category3 = this.getById(catId3);
+        if (category3 == null || category3.getCatLevel() == null || category3.getCatLevel() != 3) throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        result.add(catId3);
+        CategoryEntity category2 = this.getById(category3.getParentCid());
+        if (category2 == null) throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        result.add(category2.getCatId());
+        CategoryEntity category1 = this.getById(category2.getParentCid());
+        if (category1 == null) throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        result.add(category1.getCatId());
+        Collections.reverse(result);
+        return result;
+    }
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -106,6 +124,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         Collections.reverse(path);
         return path.toArray(new Long[0]);
     }
+
 
     private void findParentPath(Long catelogId, List<Long> path) {
         CategoryEntity categoryEntity = this.getById(catelogId);

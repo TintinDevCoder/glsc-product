@@ -7,16 +7,14 @@ import java.util.Map;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
 import com.dd.glsc.product.entity.CategoryBrandRelationEntity;
 import com.dd.glsc.product.entity.vo.CategoryVO;
 import com.dd.glsc.product.service.CategoryBrandRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.dd.glsc.product.entity.CategoryEntity;
 import com.dd.glsc.product.service.CategoryService;
@@ -40,6 +38,13 @@ public class CategoryController {
 
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    @GetMapping("/path/{catId}")
+    public BaseResponse<List<Long>> getCategoryPath(@PathVariable("catId") Long catId) {
+        List<Long> categoryPath = categoryService.findCategoryPath(catId);
+        return ResultUtils.success(categoryPath);
+    }
+
     /**
      * 查出所有的分类以及子分类，以树形结构组装起来
      */

@@ -1,13 +1,12 @@
 package com.dd.glsc.product;
 
 
+import com.dd.glsc.product.dao.AttrDao;
+import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
 import com.dd.glsc.product.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GlscProductApplicationTests {
     @Autowired
     CategoryService categoryService;
-
+    @Autowired
+    AttrDao attrDao;
     @Test
     void contextLoads() {
-        Long[] catelogPath = categoryService.findCatelogPath(225L);
-        System.out.println(Arrays.asList(catelogPath));
+
     }
 }
