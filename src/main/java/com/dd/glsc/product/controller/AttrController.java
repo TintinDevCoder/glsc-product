@@ -112,9 +112,13 @@ public class AttrController {
      * 删除
      */
     @RequestMapping("/delete")
+    @Transactional
     //@RequiresPermissions("product:attr:delete")
     public R delete(@RequestBody Long[] attrIds){
+        // 删除属性表中的数据
 		attrService.removeByIds(Arrays.asList(attrIds));
+        // 删除属性与属性分组的关联关系
+        attrAttrgroupRelationService.deleteRelationByAttrIds(Arrays.asList(attrIds));
 
         return R.ok();
     }

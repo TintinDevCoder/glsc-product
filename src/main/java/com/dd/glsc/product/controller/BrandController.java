@@ -130,8 +130,12 @@ public class BrandController {
      * 删除
      */
     @RequestMapping("/delete")
+    @Transactional
     //@RequiresPermissions("product:brand:delete")
     public R delete(@RequestBody Long[] brandIds){
+        // 删除分类绑定的品牌关联
+        categoryBrandRelationService.removeByBrandIds(Arrays.asList(brandIds));
+        // 删除品牌
 		brandService.removeByIds(Arrays.asList(brandIds));
 
         return R.ok();

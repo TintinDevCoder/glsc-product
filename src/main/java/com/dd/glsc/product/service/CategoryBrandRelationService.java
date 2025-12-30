@@ -2,8 +2,10 @@ package com.dd.glsc.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.utils.PageUtils;
+import com.dd.glsc.product.entity.BrandEntity;
 import com.dd.glsc.product.entity.CategoryBrandRelationEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,5 +24,18 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
      * @param categoryBrandRelation
      */
     void saveCategoryBrandRelation(CategoryBrandRelationEntity categoryBrandRelation);
+
+    /**
+     * 某分类下的品牌列表
+     * @param catId
+     * @return
+     */
+    List<CategoryBrandRelationEntity> getBrandsListByCatelogId(Long catId);
+
+    /**
+     * 根据品牌ids删除关联关系
+     * @param list
+     */
+    void removeByBrandIds(List<Long> list);
 }
 

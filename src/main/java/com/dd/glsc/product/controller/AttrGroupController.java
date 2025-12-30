@@ -11,7 +11,9 @@ import com.dd.common.valid.group.AddGroup;
 import com.dd.common.valid.group.UpdateGroup;
 import com.dd.glsc.product.entity.dto.AttrGroupRelationDTO;
 import com.dd.glsc.product.entity.vo.AttrGroupAttrVO;
+import com.dd.glsc.product.service.AttrAttrgroupRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,8 @@ import com.dd.common.utils.R;
 public class AttrGroupController {
     @Autowired
     private AttrGroupService attrGroupService;
+    @Autowired
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
 
     // 分组与属性的操作
 
@@ -143,8 +147,12 @@ public class AttrGroupController {
      * 删除
      */
     @RequestMapping("/delete")
+    @Transactional
     //@RequiresPermissions("product:attrgroup:delete")
     public R delete(@RequestBody Long[] attrGroupIds) {
+        // 删除所有属性与属性分组的关联关系
+        attrAttrgroupRelationService.removeByAttrGroupIds(Arrays.asList(attrGroupIds));
+        // 删除属性分组
         attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
 
         return R.ok();

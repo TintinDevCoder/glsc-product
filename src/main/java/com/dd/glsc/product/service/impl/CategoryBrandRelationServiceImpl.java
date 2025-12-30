@@ -7,8 +7,11 @@ import com.dd.glsc.product.entity.BrandEntity;
 import com.dd.glsc.product.entity.CategoryEntity;
 import com.dd.glsc.product.service.BrandService;
 import com.dd.glsc.product.service.CategoryService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -65,6 +68,21 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         categoryBrandRelation.setCatelogName(categoryEntity.getName());
         // 保存关联关系
         this.save(categoryBrandRelation);
+    }
+
+    @Override
+    public List<CategoryBrandRelationEntity> getBrandsListByCatelogId(Long catId) {
+        QueryWrapper<CategoryBrandRelationEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(CategoryBrandRelationEntity::getCatelogId, catId);
+        List<CategoryBrandRelationEntity> BrandEntities = this.list(queryWrapper);
+        return BrandEntities;
+    }
+
+    @Override
+    public void removeByBrandIds(List<Long> list) {
+        QueryWrapper<CategoryBrandRelationEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(CategoryBrandRelationEntity::getBrandId, list);
+        this.remove(queryWrapper);
     }
 
 }

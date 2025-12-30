@@ -1,6 +1,7 @@
 package com.dd.glsc.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -8,6 +9,7 @@ import com.dd.common.common.BaseResponse;
 import com.dd.common.common.ResultUtils;
 import com.dd.common.valid.group.AddGroup;
 import com.dd.common.valid.group.UpdateGroup;
+import com.dd.glsc.product.entity.BrandEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +39,7 @@ public class CategoryBrandRelationController {
     private CategoryBrandRelationService categoryBrandRelationService;
 
     /**
-     * 列表
+     * 分类列表
      */
     @RequestMapping("/catelog/list")
     //@RequiresPermissions("product:categorybrandrelation:list")
@@ -47,6 +49,16 @@ public class CategoryBrandRelationController {
         return ResultUtils.success(page);
     }
 
+    /**
+     * 某分类下品牌列表
+     */
+    @RequestMapping("/brands/list")
+    //@RequiresPermissions("product:categorybrandrelation:list")
+    public BaseResponse<List<CategoryBrandRelationEntity>> getBrandsList(@RequestParam("catId") Long catId){
+        List<CategoryBrandRelationEntity> brandList = categoryBrandRelationService.getBrandsListByCatelogId(catId);
+
+        return ResultUtils.success(brandList);
+    }
 
     /**
      * 信息
