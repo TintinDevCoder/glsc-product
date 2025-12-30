@@ -59,6 +59,13 @@ public class AttrController {
         return R.ok().put("page", page);
     }
 
+    /**
+     * 属性列表
+     * @param params
+     * @param catId
+     * @param type
+     * @return
+     */
     @RequestMapping("/{type}/list/{catId}")
     //@RequiresPermissions("product:attr:list")
     public BaseResponse<PageUtils> list(@RequestParam Map<String, Object> params,

@@ -58,6 +58,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catId, String type) {
+        // 构建查询条件
         QueryWrapper<AttrEntity> attrEntityQueryWrapper = new QueryWrapper<>();
         if (catId != 0) {
             attrEntityQueryWrapper.lambda().eq(AttrEntity::getCatelogId, catId);
@@ -96,7 +97,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             }
 
             // 获取属性分组信息
-            if (attrEntity.getAttrId() != null && (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() || attrEntity.getAttrType() == ProductConstant.AttrEnum.ALL_TYPE.getCode())) {
+            if (attrEntity.getAttrType() != null && (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() || attrEntity.getAttrType() == ProductConstant.AttrEnum.ALL_TYPE.getCode())) {
                 // 联表信息
                 QueryWrapper<AttrAttrgroupRelationEntity> queryWrapper = new QueryWrapper<>();
                 queryWrapper.lambda().eq(AttrAttrgroupRelationEntity::getAttrId, attrEntity.getAttrId());
@@ -193,7 +194,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         // 保存属性信息
         this.save(attr);
         // 如果是基本属性，还需要保存属性与属性分组的关联关系
-        if (attr.getAttrType() != null && (attr.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() || attr.getAttrType() == ProductConstant.AttrEnum.ALL_TYPE.getCode())) {
+        if (attr.getAttrType() != null && (attr.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() || attr.getAttrType() == ProductConstant.AttrEnum.ALL_TYPE.getCode()) && attrAddAndUpdateDTO.getAttrGroupId() != null) {
             AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = new AttrAttrgroupRelationEntity();
             attrAttrgroupRelationEntity.setAttrGroupId(attrAddAndUpdateDTO.getAttrGroupId());
             attrAttrgroupRelationEntity.setAttrId(attr.getAttrId());

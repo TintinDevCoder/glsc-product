@@ -18,6 +18,14 @@ import java.util.Map;
 public interface AttrService extends IService<AttrEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 分页查询某分类下的某种类型的属性
+     * @param params
+     * @param catId
+     * @param type
+     * @return
+     */
     PageUtils queryPage(Map<String, Object> params, Long catId, String type);
 
     /**
