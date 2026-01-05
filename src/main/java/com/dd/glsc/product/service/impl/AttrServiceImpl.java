@@ -69,7 +69,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 if (type.equalsIgnoreCase(ProductConstant.ATTR_TYPE_BASE)) {
                     attrEntityLambdaQueryWrapper.or().eq(AttrEntity::getAttrType, ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
                 } else if (type.equalsIgnoreCase(ProductConstant.ATTR_TYPE_SALE)) {
-                    attrEntityLambdaQueryWrapper.or().eq(AttrEntity::getAttrType, ProductConstant.AttrEnum.ATTR_TYPE_SALE);
+                    attrEntityLambdaQueryWrapper.or().eq(AttrEntity::getAttrType, ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode());
                 }
             }
         }));

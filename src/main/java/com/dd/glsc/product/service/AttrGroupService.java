@@ -5,6 +5,7 @@ import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.AttrGroupEntity;
 import com.dd.glsc.product.entity.dto.AttrGroupRelationDTO;
 import com.dd.glsc.product.entity.vo.AttrGroupAttrVO;
+import com.dd.glsc.product.entity.vo.AttrGroupWithAttrList;
 
 import java.util.List;
 import java.util.Map;
@@ -48,5 +49,12 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
      * @param attrGroupRelationDTOList
      */
     void saveAttrRelation(List<AttrGroupRelationDTO> attrGroupRelationDTOList);
+
+    /**
+     * 获取分类下的所有分组以及其所有的关联属性
+     * @param catalogId
+     * @return
+     */
+    List<AttrGroupWithAttrList> getAttrGroupWithAttr(Long catalogId);
 }
 

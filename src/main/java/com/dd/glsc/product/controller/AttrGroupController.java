@@ -11,6 +11,7 @@ import com.dd.common.valid.group.AddGroup;
 import com.dd.common.valid.group.UpdateGroup;
 import com.dd.glsc.product.entity.dto.AttrGroupRelationDTO;
 import com.dd.glsc.product.entity.vo.AttrGroupAttrVO;
+import com.dd.glsc.product.entity.vo.AttrGroupWithAttrList;
 import com.dd.glsc.product.service.AttrAttrgroupRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,16 @@ public class AttrGroupController {
 
     // 分组与属性的操作
 
+    /**
+     * 获取属性分组和属性列表信息
+     */
+    @RequestMapping("/{catalogId}/withattr")
+    //@RequiresPermissions("product:attrgroup:list")
+    public BaseResponse<List<AttrGroupWithAttrList>> getAttrGroupWithAttr(@PathVariable(value = "catalogId") Long catalogId) {
+        List<AttrGroupWithAttrList> attrGroupWithAttrLists = attrGroupService.getAttrGroupWithAttr(catalogId);
+
+        return ResultUtils.success(attrGroupWithAttrLists);
+    }
     /**
      * 属性分组对应属性列表
      */

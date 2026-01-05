@@ -12,11 +12,15 @@ import com.dd.glsc.product.entity.AttrEntity;
 import com.dd.glsc.product.entity.dto.AttrGroupRelationDTO;
 import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
 import com.dd.glsc.product.entity.vo.AttrGroupAttrVO;
+import com.dd.glsc.product.entity.vo.AttrGroupWithAttrList;
 import com.dd.glsc.product.service.AttrAttrgroupRelationService;
 import com.dd.glsc.product.service.AttrService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -220,6 +224,52 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return relationEntity;
         }).collect(Collectors.toList());
         attrAttrgroupRelationService.saveBatch(relationEntities);
+    }
+
+    @Override
+    public List<AttrGroupWithAttrList> getAttrGroupWithAttr(Long catalogId) {
+        List<AttrGroupWithAttrList> result = new LinkedList<>();
+        // 获取到当前分类下的所有属性分组
+        QueryWrapper<AttrGroupEntity> attrGroupEntityQueryWrapper = new QueryWrapper<>();
+        attrGroupEntityQueryWrapper.lambda().eq(AttrGroupEntity::getCatelogId, catalogId);
+        List<AttrGroupEntity> attrGroupEntities = this.list(attrGroupEntityQueryWrapper);
+        List<Long> attrGroupIds = attrGroupEntities.stream().map(attrGroupEntity -> attrGroupEntity.getAttrGroupId()).collect(Collectors.toList());
+        if (attrGroupEntities != null && attrGroupEntities.size() > 0) {
+            // 获取这些分组下的所有属性关联关系
+            QueryWrapper<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntityQueryWrapper = new QueryWrapper<>();
+            attrAttrgroupRelationEntityQueryWrapper.lambda().in(AttrAttrgroupRelationEntity::getAttrGroupId, attrGroupIds);
+            List<AttrAttrgroupRelationEntity> attrRelationList = attrAttrgroupRelationService.list(attrAttrgroupRelationEntityQueryWrapper);
+
+            // 获取所有属性id,并获取属性信息
+            List<Long> attrIds = attrRelationList.stream().map(attrRelationEntity -> attrRelationEntity.getAttrId()).collect(Collectors.toList());
+            QueryWrapper<AttrEntity> attrEntityQueryWrapper = new QueryWrapper<>();
+            attrEntityQueryWrapper.lambda().in(AttrEntity::getAttrId, attrIds);
+            List<AttrEntity> attrEntities = attrService.list(attrEntityQueryWrapper);
+
+            // 将属性按分组进行分类
+            Map<Long, List<Long>> attrGroupIdToAttrIds = new HashMap<>();
+            for (AttrAttrgroupRelationEntity relation : attrRelationList) {
+                Long groupId = relation.getAttrGroupId();
+                Long attrId = relation.getAttrId();
+                attrGroupIdToAttrIds.computeIfAbsent(groupId, k -> new LinkedList<>()).add(attrId);
+            }
+            // 查询属性信息并封装结果
+            result = attrGroupEntities.stream().map(attrGroupEntity -> {
+                AttrGroupWithAttrList vo = new AttrGroupWithAttrList();
+                BeanUtils.copyProperties(attrGroupEntity, vo);
+                List<Long> groupAttrIds = attrGroupIdToAttrIds.get(attrGroupEntity.getAttrGroupId());
+                List<AttrEntity> groupAttrs = new LinkedList<>();
+                if (groupAttrIds != null) {
+                    groupAttrs = attrEntities.stream()
+                            .filter(attrEntity -> groupAttrIds.contains(attrEntity.getAttrId()))
+                            .collect(Collectors.toList());
+                }
+                vo.setAttrs(groupAttrs);
+                return vo;
+            }).collect(Collectors.toList());
+            return result;
+        }
+        return result;
     }
 
 }

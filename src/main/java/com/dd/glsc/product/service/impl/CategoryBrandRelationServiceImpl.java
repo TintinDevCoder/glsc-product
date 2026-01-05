@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -75,6 +77,22 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         QueryWrapper<CategoryBrandRelationEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(CategoryBrandRelationEntity::getCatelogId, catId);
         List<CategoryBrandRelationEntity> BrandEntities = this.list(queryWrapper);
+
+        // 筛选启用的品牌
+        // 获得品牌id列表
+        List<Long> brandIds = BrandEntities.stream().map(entity -> entity.getBrandId()).collect(Collectors.toList());
+        QueryWrapper<BrandEntity> brandQueryWrapper = new QueryWrapper<>();
+        brandQueryWrapper.lambda().in(BrandEntity::getBrandId, brandIds).eq(BrandEntity::getShowStatus, 1);
+        // 根据品牌id列表获取品牌实体列表
+        List<BrandEntity> brandEntities = brandService.list(brandQueryWrapper);
+        // 将品牌实体列表转换为品牌关联实体列表
+        BrandEntities = brandEntities.stream().map(brandEntity -> {
+            CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
+            categoryBrandRelationEntity.setBrandId(brandEntity.getBrandId());
+            categoryBrandRelationEntity.setBrandName(brandEntity.getName());
+            return categoryBrandRelationEntity;
+        }).collect(Collectors.toList());
+
         return BrandEntities;
     }
 
