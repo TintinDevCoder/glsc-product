@@ -2,8 +2,11 @@ package com.dd.glsc.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.utils.PageUtils;
+import com.dd.glsc.product.entity.SkuImagesEntity;
 import com.dd.glsc.product.entity.SkuInfoEntity;
+import com.dd.glsc.product.entity.SkuSaleAttrValueEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +19,17 @@ import java.util.Map;
 public interface SkuInfoService extends IService<SkuInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 批量保存sku图片信息
+     * @param skuimages
+     */
+    void saveSkuImagesBatch(List<SkuImagesEntity> skuimages);
+
+    /**
+     * 批量保存sku销售属性信息
+     * @param attrs
+     */
+    void saveSkuSaleAttrValueBatch(List<SkuSaleAttrValueEntity> attrs);
 }
 

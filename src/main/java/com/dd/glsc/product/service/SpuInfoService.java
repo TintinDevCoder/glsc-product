@@ -3,6 +3,7 @@ package com.dd.glsc.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.SpuInfoEntity;
+import com.dd.glsc.product.entity.dto.SkuSave.SpuSaveDTO;
 
 import java.util.Map;
 
@@ -16,5 +17,17 @@ import java.util.Map;
 public interface SpuInfoService extends IService<SpuInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 保存spu信息
+     * @param spuInfo
+     */
+    void saveSpuInfo(SpuSaveDTO spuInfo);
+
+    /**
+     * 获取sku编号的最后一段
+     * @return
+     */
+    String getLastSegment(String str);
 }
 

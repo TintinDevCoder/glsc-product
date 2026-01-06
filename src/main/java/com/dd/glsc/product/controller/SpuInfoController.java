@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
+import com.dd.common.valid.group.AddGroup;
+import com.dd.glsc.product.entity.dto.SkuSave.SpuSaveDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,10 +64,10 @@ public class SpuInfoController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:spuinfo:save")
-    public R save(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.save(spuInfo);
+    public BaseResponse save(@Validated(value = {AddGroup.class}) @RequestBody SpuSaveDTO spuInfo){
+		spuInfoService.saveSpuInfo(spuInfo);
 
-        return R.ok();
+        return ResultUtils.success();
     }
 
     /**
