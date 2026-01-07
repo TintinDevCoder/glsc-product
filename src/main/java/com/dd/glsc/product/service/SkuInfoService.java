@@ -31,5 +31,12 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
      * @param attrs
      */
     void saveSkuSaleAttrValueBatch(List<SkuSaleAttrValueEntity> attrs);
+
+    /**
+     * 根据条件分页查询sku信息
+     * @param params
+     * @return
+     */
+    PageUtils queryPageByCondition(Map<String, Object> params);
 }
 
