@@ -1,7 +1,9 @@
 package com.dd.glsc.product.entity.dto.SkuSave;
 
-import java.math.BigDecimal;
+import lombok.Data;
 
+import java.math.BigDecimal;
+@Data
 public class MemberPrice {
     private Long id;
     private String name;

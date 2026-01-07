@@ -1,5 +1,6 @@
 package com.dd.glsc.product.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.dd.common.common.BusinessException;
 import com.dd.common.common.ErrorCode;
@@ -11,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,25 +76,27 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Override
     public List<CategoryBrandRelationEntity> getBrandsListByCatelogId(Long catId) {
+        // 根据分类id获取品牌关联实体列表
         QueryWrapper<CategoryBrandRelationEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(CategoryBrandRelationEntity::getCatelogId, catId);
         List<CategoryBrandRelationEntity> BrandEntities = this.list(queryWrapper);
-
-        // 筛选启用的品牌
-        // 获得品牌id列表
-        List<Long> brandIds = BrandEntities.stream().map(entity -> entity.getBrandId()).collect(Collectors.toList());
-        QueryWrapper<BrandEntity> brandQueryWrapper = new QueryWrapper<>();
-        brandQueryWrapper.lambda().in(BrandEntity::getBrandId, brandIds).eq(BrandEntity::getShowStatus, 1);
-        // 根据品牌id列表获取品牌实体列表
-        List<BrandEntity> brandEntities = brandService.list(brandQueryWrapper);
-        // 将品牌实体列表转换为品牌关联实体列表
-        BrandEntities = brandEntities.stream().map(brandEntity -> {
-            CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
-            categoryBrandRelationEntity.setBrandId(brandEntity.getBrandId());
-            categoryBrandRelationEntity.setBrandName(brandEntity.getName());
-            return categoryBrandRelationEntity;
-        }).collect(Collectors.toList());
-
+        if (!CollUtil.isEmpty(BrandEntities)) {
+            // 筛选启用的品牌
+            // 获得品牌id列表
+            List<Long> brandIds = BrandEntities.stream().map(entity -> entity.getBrandId()).collect(Collectors.toList());
+            // 根据品牌id列表查询启用的品牌实体列表
+            QueryWrapper<BrandEntity> brandQueryWrapper = new QueryWrapper<>();
+            List<BrandEntity> brandEntities = new LinkedList<>();
+            brandQueryWrapper.lambda().in(BrandEntity::getBrandId, brandIds).eq(BrandEntity::getShowStatus, 1);
+            brandEntities = brandService.list(brandQueryWrapper);
+            // 将品牌实体列表转换为品牌关联实体列表
+            BrandEntities = brandEntities.stream().map(brandEntity -> {
+                CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
+                categoryBrandRelationEntity.setBrandId(brandEntity.getBrandId());
+                categoryBrandRelationEntity.setBrandName(brandEntity.getName());
+                return categoryBrandRelationEntity;
+            }).collect(Collectors.toList());
+        }
         return BrandEntities;
     }
 
