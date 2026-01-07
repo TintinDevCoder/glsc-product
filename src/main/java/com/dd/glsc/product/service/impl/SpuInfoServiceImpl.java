@@ -1,5 +1,6 @@
 package com.dd.glsc.product.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.dd.common.common.BaseResponse;
 import com.dd.common.to.SkuReducationTO;
 import com.dd.common.to.SpuBoudsTO;
@@ -53,6 +54,45 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         return new PageUtils(page);
     }
 
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        // 获取参数
+        String statusK = (String) params.get("status");
+        Integer status = StrUtil.isEmpty(statusK) ? null : Integer.parseInt(statusK);
+
+        String keyK = (String) params.get("key");
+        String key = StrUtil.isEmpty(keyK) ? null : keyK;
+
+        String brandIdK = (String) params.get("brandId");
+        Long brandId = StrUtil.isEmpty(brandIdK) ? null : Long.parseLong(brandIdK);
+
+        String catelogIdK = (String) params.get("catelogId");
+        Long catelogId = StrUtil.isEmpty(catelogIdK) ? null : Long.parseLong(catelogIdK);
+        QueryWrapper<SpuInfoEntity> spuInfoEntityQueryWrapper = new QueryWrapper<>();
+        if (status != null && (status == 0 || status == 1 || status == 2)) {
+            spuInfoEntityQueryWrapper.lambda().eq(SpuInfoEntity::getPublishStatus, status);
+        }
+        if (key != null && !key.isEmpty()) {
+            spuInfoEntityQueryWrapper.lambda().and(wrapper ->
+                    wrapper.eq(SpuInfoEntity::getId, key)
+                            .or()
+                            .like(SpuInfoEntity::getSpuName, key)
+                            .or()
+                            .like(SpuInfoEntity::getSpuDescription, key)
+            );
+        }
+        if (brandId != null && brandId != 0) {
+            spuInfoEntityQueryWrapper.lambda().eq(SpuInfoEntity::getBrandId, brandId);
+        }
+        if (catelogId != null && catelogId != 0) {
+            spuInfoEntityQueryWrapper.lambda().eq(SpuInfoEntity::getCatalogId, catelogId);
+        }
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                spuInfoEntityQueryWrapper
+        );
+
+        return new PageUtils(page);
+    }
     /**
      * 保存spu信息
      * @param spuInfo

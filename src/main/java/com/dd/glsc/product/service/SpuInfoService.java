@@ -19,6 +19,13 @@ public interface SpuInfoService extends IService<SpuInfoEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     /**
+     * 带条件分页查询
+     * @param params
+     * @return
+     */
+    PageUtils queryPageByCondition(Map<String, Object> params);
+
+    /**
      * 保存spu信息
      * @param spuInfo
      */
