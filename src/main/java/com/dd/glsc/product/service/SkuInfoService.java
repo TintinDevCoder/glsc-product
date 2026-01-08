@@ -2,11 +2,13 @@ package com.dd.glsc.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.to.SkuInfoTO;
+import com.dd.common.to.SkuTotalPriceTO;
 import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.SkuImagesEntity;
 import com.dd.glsc.product.entity.SkuInfoEntity;
 import com.dd.glsc.product.entity.SkuSaleAttrValueEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -46,5 +48,12 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
      * @return
      */
     List<SkuInfoTO> queryByCondition(Map<String, Object> params);
+
+    /**
+     * 计算sku总价
+     * @param skus
+     * @return
+     */
+    BigDecimal getTotalPrice(List<SkuTotalPriceTO> skus);
 }
 

@@ -2,6 +2,7 @@ package com.dd.glsc.product.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.dd.common.to.SkuInfoTO;
+import com.dd.common.to.SkuTotalPriceTO;
 import com.dd.glsc.product.entity.SkuImagesEntity;
 import com.dd.glsc.product.entity.SkuSaleAttrValueEntity;
 import com.dd.glsc.product.service.SkuImagesService;
@@ -10,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -115,5 +114,35 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             return skuInfoTO;
         }).collect(Collectors.toList());
         return result;
+    }
+
+    /**
+     * 计算sku总价
+     * @param skus
+     * @return
+     */
+    @Override
+    public BigDecimal getTotalPrice(List<SkuTotalPriceTO> skus) {
+        Map<Long, Integer> skuIdCountMap = new HashMap<>();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        if (skus != null && skus.size() > 0) {
+            List<Long> skuIds = skus.stream().map(sku -> {
+                // id和数量的映射
+                skuIdCountMap.put(sku.getSkuId(), sku.getNum());
+                // 获取skuId列表
+                return sku.getSkuId();
+            }).collect(Collectors.toList());
+            // 读取sku的价格
+            QueryWrapper<SkuInfoEntity> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().select(SkuInfoEntity::getSkuId, SkuInfoEntity::getPrice).in(SkuInfoEntity::getSkuId, skuIds);
+            List<SkuInfoEntity> skuInfoEntities = this.getBaseMapper().selectList(queryWrapper);
+            // 计算总价
+            for (SkuInfoEntity skuInfoEntity : skuInfoEntities) {
+                Integer count = skuIdCountMap.get(skuInfoEntity.getSkuId());
+                BigDecimal skuTotalPrice = skuInfoEntity.getPrice().multiply(new BigDecimal(count));
+                totalPrice = totalPrice.add(skuTotalPrice);
+            }
+        }
+        return totalPrice;
     }
 }

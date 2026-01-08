@@ -1,5 +1,6 @@
 package com.dd.glsc.product.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import com.dd.common.common.BaseResponse;
 import com.dd.common.common.ResultUtils;
 import com.dd.common.to.SkuInfoTO;
+import com.dd.common.to.SkuTotalPriceTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -104,5 +106,11 @@ public class SkuInfoController {
 
         return R.ok();
     }
-
+    // 远程调用
+    @RequestMapping("/getTotcalPrice")
+    //@RequiresPermissions("product:skuinfo:delete")
+    public BigDecimal getTotcalPrice(@RequestBody List<SkuTotalPriceTO> skus){
+        BigDecimal totalPrice = skuInfoService.getTotalPrice(skus);
+        return totalPrice;
+    }
 }
