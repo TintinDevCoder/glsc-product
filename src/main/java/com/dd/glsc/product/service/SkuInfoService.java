@@ -1,6 +1,7 @@
 package com.dd.glsc.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dd.common.to.SkuInfoTO;
 import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.SkuImagesEntity;
 import com.dd.glsc.product.entity.SkuInfoEntity;
@@ -38,5 +39,12 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
      * @return
      */
     PageUtils queryPageByCondition(Map<String, Object> params);
+
+    /**
+     * 根据条件查询sku信息
+     * @param params
+     * @return
+     */
+    List<SkuInfoTO> queryByCondition(Map<String, Object> params);
 }
 

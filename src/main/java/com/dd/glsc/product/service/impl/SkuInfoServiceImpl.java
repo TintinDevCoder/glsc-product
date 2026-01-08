@@ -1,6 +1,7 @@
 package com.dd.glsc.product.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.dd.common.to.SkuInfoTO;
 import com.dd.glsc.product.entity.SkuImagesEntity;
 import com.dd.glsc.product.entity.SkuSaleAttrValueEntity;
 import com.dd.glsc.product.service.SkuImagesService;
@@ -9,8 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -93,4 +98,22 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         return new PageUtils(page);
     }
 
+    @Override
+    public List<SkuInfoTO> queryByCondition(Map<String, Object> params) {
+        QueryWrapper<SkuInfoEntity> queryWrapper = new QueryWrapper<>();
+        Object idObj = params.get("ids");
+        List<Long> ids = null;
+        if (idObj instanceof List<?>) {
+            ids = (List<Long>) idObj; // 强制转换
+            queryWrapper.lambda().in(SkuInfoEntity::getSkuId, ids);
+        }
+        List<SkuInfoEntity> skuInfoEntities = this.list(queryWrapper);
+        List<SkuInfoTO> result = skuInfoEntities.stream().map(skuInfoEntity -> {
+            SkuInfoTO skuInfoTO = new SkuInfoTO();
+            skuInfoTO.setSkuId(skuInfoEntity.getSkuId());
+            skuInfoTO.setSkuName(skuInfoEntity.getSkuName());
+            return skuInfoTO;
+        }).collect(Collectors.toList());
+        return result;
+    }
 }

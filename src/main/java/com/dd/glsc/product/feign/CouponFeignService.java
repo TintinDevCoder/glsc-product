@@ -2,7 +2,7 @@ package com.dd.glsc.product.feign;
 
 import com.dd.common.common.BaseResponse;
 import com.dd.common.to.SkuReducationTO;
-import com.dd.common.to.SpuBoudsTO;
+import com.dd.common.to.SpuBoundsTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -17,7 +17,7 @@ public interface CouponFeignService {
      * @return
      */
     @PostMapping("/coupon/spubounds/save")
-    BaseResponse saveSpuBounds(SpuBoudsTO spuBoudsTO);
+    BaseResponse saveSpuBounds(SpuBoundsTO spuBoudsTO);
 
     /**
      * 保存sku满减信息

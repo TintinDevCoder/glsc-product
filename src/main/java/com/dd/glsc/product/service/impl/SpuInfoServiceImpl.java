@@ -3,7 +3,7 @@ package com.dd.glsc.product.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.dd.common.common.BaseResponse;
 import com.dd.common.to.SkuReducationTO;
-import com.dd.common.to.SpuBoudsTO;
+import com.dd.common.to.SpuBoundsTO;
 import com.dd.glsc.product.entity.*;
 import com.dd.glsc.product.entity.dto.SkuSave.BaseAttrs;
 import com.dd.glsc.product.entity.dto.SkuSave.SkuDTO;
@@ -211,7 +211,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         // 6、保存spu的积分信息；glsc_sms -> sms_spu_bounds
         SpuBoundsDTO bounds = spuInfo.getBounds();
-        SpuBoudsTO spuBoudsTO = new SpuBoudsTO();
+        SpuBoundsTO spuBoudsTO = new SpuBoundsTO();
         BeanUtils.copyProperties(bounds, spuBoudsTO);
         spuBoudsTO.setSpuId(spuId);
         // 远程调用积分服务保存

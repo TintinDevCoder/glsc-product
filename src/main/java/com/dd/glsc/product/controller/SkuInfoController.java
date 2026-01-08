@@ -1,9 +1,13 @@
 package com.dd.glsc.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
+import com.dd.common.to.SkuInfoTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +36,21 @@ public class SkuInfoController {
     private SkuInfoService skuInfoService;
 
     /**
-     * 列表
+     * 条件查询sku
+     * @param params
+     * @return
+     */
+    @RequestMapping("/get/sku")
+    public BaseResponse getSkuOnConditon(@RequestParam Map<String, Object> params){
+        List<SkuInfoTO> result = skuInfoService.queryByCondition(params);
+
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 分页条件查询sku
+     * @param params
+     * @return
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:skuinfo:list")
