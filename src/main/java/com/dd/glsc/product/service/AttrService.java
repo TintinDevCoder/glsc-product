@@ -3,9 +3,11 @@ package com.dd.glsc.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.AttrEntity;
+import com.dd.glsc.product.entity.ProductAttrValueEntity;
 import com.dd.glsc.product.entity.dto.AttrAddAndUpdateDTO;
 import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,5 +48,19 @@ public interface AttrService extends IService<AttrEntity> {
      * @param attrAddAndUpdateDTO
      */
     void saveAttr(AttrAddAndUpdateDTO attrAddAndUpdateDTO);
+
+    /**
+     * 根据spuId查询规格参数及值
+     * @param spuId
+     * @return
+     */
+    List<ProductAttrValueEntity> getSpuAttr(Long spuId);
+
+    /**
+     * 更新spu的规格参数
+     * @param attrValueEntities
+     * @param spuId
+     */
+    void updateSpuAttr(List<ProductAttrValueEntity> attrValueEntities, Long spuId);
 }
 

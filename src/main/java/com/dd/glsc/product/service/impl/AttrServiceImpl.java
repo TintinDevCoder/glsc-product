@@ -7,14 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dd.common.common.ErrorCode;
 import com.dd.common.common.ThrowUtils;
 import com.dd.common.constant.ProductConstant;
-import com.dd.glsc.product.entity.AttrAttrgroupRelationEntity;
-import com.dd.glsc.product.entity.AttrGroupEntity;
-import com.dd.glsc.product.entity.CategoryEntity;
+import com.dd.glsc.product.entity.*;
 import com.dd.glsc.product.entity.dto.AttrAddAndUpdateDTO;
 import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
-import com.dd.glsc.product.service.AttrAttrgroupRelationService;
-import com.dd.glsc.product.service.AttrGroupService;
-import com.dd.glsc.product.service.CategoryService;
+import com.dd.glsc.product.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +26,6 @@ import com.dd.common.utils.PageUtils;
 import com.dd.common.utils.Query;
 
 import com.dd.glsc.product.dao.AttrDao;
-import com.dd.glsc.product.entity.AttrEntity;
-import com.dd.glsc.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -46,6 +40,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     @Autowired
     CategoryService categoryService;
 
+    @Autowired
+    ProductAttrValueService productAttrValueService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrEntity> page = this.page(
@@ -200,6 +196,38 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             attrAttrgroupRelationEntity.setAttrId(attr.getAttrId());
             attrAttrgroupRelationService.save(attrAttrgroupRelationEntity);
         }
+    }
+
+    /**
+     * 根据spuId查询规格参数及值
+     * @param spuId
+     * @return
+     */
+    @Override
+    public List<ProductAttrValueEntity> getSpuAttr(Long spuId) {
+        QueryWrapper<ProductAttrValueEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(ProductAttrValueEntity::getSpuId, spuId);
+        List<ProductAttrValueEntity> attrValueEntities = productAttrValueService.getBaseMapper().selectList(queryWrapper);
+        return attrValueEntities;
+    }
+
+    /**
+     * 更新spu的规格参数
+     * @param attrValueEntities
+     * @param spuId
+     */
+    @Override
+    @Transactional
+    public void updateSpuAttr(List<ProductAttrValueEntity> attrValueEntities, Long spuId) {
+        // 先删除spuId对应的规格参数
+        QueryWrapper<ProductAttrValueEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(ProductAttrValueEntity::getSpuId, spuId);
+        productAttrValueService.getBaseMapper().delete(queryWrapper);
+        // 批量保存新的规格参数
+        for (ProductAttrValueEntity attrValueEntity : attrValueEntities) {
+            attrValueEntity.setSpuId(spuId);
+        }
+        productAttrValueService.saveBatch(attrValueEntities);
     }
 
 }

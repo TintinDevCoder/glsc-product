@@ -1,6 +1,7 @@
 package com.dd.glsc.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -9,6 +10,7 @@ import com.dd.common.common.ResultUtils;
 import com.dd.common.valid.group.AddGroup;
 import com.dd.common.valid.group.UpdateGroup;
 import com.dd.glsc.product.entity.AttrAttrgroupRelationEntity;
+import com.dd.glsc.product.entity.ProductAttrValueEntity;
 import com.dd.glsc.product.entity.dto.AttrAddAndUpdateDTO;
 import com.dd.glsc.product.entity.vo.AttrAndAttrGroupVOAndUpdate;
 import com.dd.glsc.product.service.AttrAttrgroupRelationService;
@@ -17,11 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.dd.glsc.product.entity.AttrEntity;
 import com.dd.glsc.product.service.AttrService;
@@ -48,6 +46,36 @@ public class AttrController {
 
     @Autowired
     private CategoryService categoryService;
+
+    /**
+     * 根据spuId查询规格参数及值
+     * @param spuId
+     * @return
+     */
+    @RequestMapping("/base/listforspu/{spuId}")
+    //@RequiresPermissions("product:attr:list")
+    public BaseResponse<List<ProductAttrValueEntity>> getSpuAttr(@PathVariable(value = "spuId") Long spuId){
+        List<ProductAttrValueEntity> attrValueEntities = attrService.getSpuAttr(spuId);
+
+        return ResultUtils.success(attrValueEntities);
+    }
+
+    /**
+     * 更新spu的规格参数
+     * @param entities
+     * @param spuId
+     * @return
+     */
+    @PostMapping("/update/{spuId}")
+    //@RequiresPermissions("product:attr:list")
+    public BaseResponse<List<ProductAttrValueEntity>> updateSpuAttr(@PathVariable(value = "spuId") Long spuId,
+                                                                    @RequestBody List<ProductAttrValueEntity> entities){
+        attrService.updateSpuAttr(entities, spuId);
+
+        return ResultUtils.success();
+    }
+
+
     /**
      * 列表
      */
