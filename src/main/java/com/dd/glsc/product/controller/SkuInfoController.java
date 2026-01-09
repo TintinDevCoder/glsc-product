@@ -43,7 +43,7 @@ public class SkuInfoController {
      * @return
      */
     @RequestMapping("/get/sku")
-    public BaseResponse getSkuOnConditon(@RequestParam Map<String, Object> params){
+    public BaseResponse<List<SkuInfoTO>> getSkuOnConditon(@RequestParam Map<String, Object> params){
         List<SkuInfoTO> result = skuInfoService.queryByCondition(params);
 
         return ResultUtils.success(result);
