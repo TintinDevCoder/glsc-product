@@ -36,5 +36,11 @@ public interface SpuInfoService extends IService<SpuInfoEntity> {
      * @return
      */
     String getLastSegment(String str);
+
+    /**
+     * 商品上架
+     * @param spuId
+     */
+    void spuUp(Long spuId);
 }
 

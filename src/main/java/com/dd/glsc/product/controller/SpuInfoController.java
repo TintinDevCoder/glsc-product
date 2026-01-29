@@ -10,11 +10,7 @@ import com.dd.common.valid.group.AddGroup;
 import com.dd.glsc.product.entity.dto.SkuSave.SpuSaveDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.dd.glsc.product.entity.SpuInfoEntity;
 import com.dd.glsc.product.service.SpuInfoService;
@@ -35,6 +31,19 @@ import com.dd.common.utils.R;
 public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
+
+    /**
+     * 商品上架
+     * @param spuId
+     * @return
+     */
+    @PostMapping("/{spuId}/up")
+    //@RequiresPermissions("product:spuinfo:list")
+    public R spuUp(@PathVariable("spuId") Long spuId){
+        spuInfoService.spuUp(spuId);
+        return R.ok();
+    }
+
 
     /**
      * 列表

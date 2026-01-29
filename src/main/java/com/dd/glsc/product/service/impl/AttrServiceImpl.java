@@ -27,6 +27,7 @@ import com.dd.common.utils.Query;
 
 import com.dd.glsc.product.dao.AttrDao;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Attr;
 
 
 @Service("attrService")
@@ -228,6 +229,19 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             attrValueEntity.setSpuId(spuId);
         }
         productAttrValueService.saveBatch(attrValueEntities);
+    }
+
+    /**
+     * 根据属性id集合筛选出可被检索的属性
+     * @param attrIds
+     * @return
+     */
+    @Override
+    public List<Long> selectSearchAttrs(List<Long> attrIds) {
+        QueryWrapper<AttrEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().select(AttrEntity::getAttrId).eq(AttrEntity::getSearchType, 1).in(AttrEntity::getAttrId, attrIds);
+        List<Long> attrEntities = this.list(queryWrapper).stream().map(attrEntity -> attrEntity.getAttrId()).collect(Collectors.toList());
+        return attrEntities;
     }
 
 }

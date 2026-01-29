@@ -62,5 +62,12 @@ public interface AttrService extends IService<AttrEntity> {
      * @param spuId
      */
     void updateSpuAttr(List<ProductAttrValueEntity> attrValueEntities, Long spuId);
+
+    /**
+     * 查询指定属性集合中可被检索的属性
+     * @param attrIds
+     * @return
+     */
+    List<Long> selectSearchAttrs(List<Long> attrIds);
 }
 
