@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.dd.common.utils.PageUtils;
 import com.dd.glsc.product.entity.CategoryEntity;
 import com.dd.glsc.product.entity.vo.CategoryVO;
+import com.dd.glsc.product.entity.vo.Catelog2VO;
 
 import java.util.List;
 import java.util.Map;
@@ -39,5 +40,18 @@ public interface CategoryService extends IService<CategoryEntity> {
      * @return
      */
     List<Long> findCategoryPath(Long catId);
+
+    /**
+     * 查询所有一级分类
+     *
+     * @return
+     */
+    List<CategoryEntity> getLevel1Categories();
+
+    /**
+     * 获取分类数据，封装成指定格式的JSON
+     * @return
+     */
+    Map<String, List<Catelog2VO>> getCatelogJson();
 }
 

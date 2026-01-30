@@ -3,6 +3,7 @@ package com.dd.glsc.product.service.impl;
 import com.dd.common.common.BusinessException;
 import com.dd.common.common.ErrorCode;
 import com.dd.glsc.product.entity.vo.CategoryVO;
+import com.dd.glsc.product.entity.vo.Catelog2VO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,102 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return result;
     }
 
+    /**
+     * 查询所有一级分类
+     *
+     * @return
+     */
+    @Override
+    public List<CategoryEntity> getLevel1Categories() {
+        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(CategoryEntity::getCatLevel, 1);
+        List<CategoryEntity> categoryEntities = this.list(queryWrapper);
+        return categoryEntities;
+    }
+
+    /**
+     * 获取分类数据，封装成指定格式的JSON（后端自处理，20ms左右）
+     * @return
+     */
+    @Override
+    public Map<String, List<Catelog2VO>> getCatelogJson() {
+        List<CategoryEntity> allCatelog = this.list();
+        List<CategoryEntity> level1Catelog = allCatelog.stream()
+                .filter(categoryEntity -> categoryEntity.getCatLevel() == 1)
+                .collect(Collectors.toList());
+        // 封装数据
+        Map<String, List<Catelog2VO>> catalogJson = level1Catelog.stream().collect(
+                Collectors.toMap(
+                k->k.getCatId().toString(),
+                v->{
+            // 1级分类id
+            Long catId = v.getCatId();
+            // 2级分类
+            List<CategoryEntity> level2Catelog = allCatelog.stream()
+                    .filter(categoryEntity1 -> categoryEntity1.getParentCid().equals(catId))
+                    .collect(Collectors.toList());
+            // 封装2级分类
+            List<Catelog2VO> collect = level2Catelog.stream().map(level2 -> {
+                Catelog2VO catelog2VO = new Catelog2VO();
+                catelog2VO.setId(level2.getCatId());
+                catelog2VO.setName(level2.getName());
+                catelog2VO.setCatalog1Id(catId);
+
+                Long catId2 = level2.getCatId();
+                // 3级分类
+                List<CategoryEntity> level3Catelog = allCatelog.stream()
+                        .filter(categoryEntity2 -> categoryEntity2.getParentCid().equals(catId2))
+                        .collect(Collectors.toList());
+                // 封装3级分类
+                List<Catelog2VO.Catelog3VO> catelog3VOList = level3Catelog.stream().map(level3 -> {
+                    Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO();
+                    catelog3VO.setId(level3.getCatId());
+                    catelog3VO.setName(level3.getName());
+                    catelog3VO.setCatalog2Id(catId2);
+                    return catelog3VO;
+                }).collect(Collectors.toList());
+                catelog2VO.setCatalog3List(catelog3VOList);
+                return catelog2VO;
+            }).collect(Collectors.toList());
+            return collect;
+        }));
+        return catalogJson;
+    }
+
+    /**
+     * 150ms 内完成（首次1.3s）
+     * @return
+     */
+    public Map<String, List<Catelog2VO>> getCatelogJson2() {
+        List<CategoryEntity> level1Categories = this.getLevel1Categories();
+        Map<String, List<Catelog2VO>> result = level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            List<CategoryEntity> level2 = baseMapper.selectList(new QueryWrapper<CategoryEntity>().lambda().eq(CategoryEntity::getParentCid, v.getCatId()));
+            if (level2 == null || level2.size() == 0) {
+                return new ArrayList<>();
+            }
+            List<Catelog2VO> relevel2 = level2.stream().map(l2 -> {
+                Catelog2VO catelog2VO = new Catelog2VO();
+                catelog2VO.setId(l2.getCatId());
+                catelog2VO.setName(l2.getName());
+                catelog2VO.setCatalog1Id(v.getCatId());
+                List<CategoryEntity> level3 = baseMapper.selectList(new QueryWrapper<CategoryEntity>().lambda().eq(CategoryEntity::getParentCid, l2.getCatId()));
+                if (level3 == null || level3.size() == 0) {
+                    return catelog2VO;
+                }
+                List<Catelog2VO.Catelog3VO> catelog3VOS = level3.stream().map(l3 -> {
+                    Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO();
+                    catelog3VO.setId(l3.getCatId());
+                    catelog3VO.setName(l3.getName());
+                    catelog3VO.setCatalog2Id(l2.getCatId());
+                    return catelog3VO;
+                }).collect(Collectors.toList());
+                catelog2VO.setCatalog3List(catelog3VOS);
+                return catelog2VO;
+            }).collect(Collectors.toList());
+            return relevel2;
+        }));
+        return result;
+    }
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(

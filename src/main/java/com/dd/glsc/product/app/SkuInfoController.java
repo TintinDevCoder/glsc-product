@@ -1,0 +1,116 @@
+package com.dd.glsc.product.app;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.dd.common.common.BaseResponse;
+import com.dd.common.common.ResultUtils;
+import com.dd.common.to.SkuInfoTO;
+import com.dd.common.to.SkuTotalPriceTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dd.glsc.product.entity.SkuInfoEntity;
+import com.dd.glsc.product.service.SkuInfoService;
+import com.dd.common.utils.PageUtils;
+import com.dd.common.utils.R;
+
+
+
+/**
+ * sku信息
+ *
+ * @author dd
+ * @email 18211882344@163.com
+ * @date 2025-12-05 11:37:43
+ */
+@RestController
+@RequestMapping("product/skuinfo")
+public class SkuInfoController {
+    @Autowired
+    private SkuInfoService skuInfoService;
+
+    /**
+     * 条件查询sku
+     * @param params
+     * @return
+     */
+    @RequestMapping("/get/sku")
+    public BaseResponse<List<SkuInfoTO>> getSkuOnConditon(@RequestParam Map<String, Object> params){
+        List<SkuInfoTO> result = skuInfoService.queryByCondition(params);
+
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 分页条件查询sku
+     * @param params
+     * @return
+     */
+    @RequestMapping("/list")
+    //@RequiresPermissions("product:skuinfo:list")
+    public R list(@RequestParam Map<String, Object> params){
+        PageUtils page = skuInfoService.queryPageByCondition(params);
+
+        return R.ok().put("page", page);
+    }
+
+
+    /**
+     * 信息
+     */
+    @RequestMapping("/info/{skuId}")
+    //@RequiresPermissions("product:skuinfo:info")
+    public R info(@PathVariable("skuId") Long skuId){
+		SkuInfoEntity skuInfo = skuInfoService.getById(skuId);
+
+        return R.ok().put("skuInfo", skuInfo);
+    }
+
+    /**
+     * 保存
+     */
+    @RequestMapping("/save")
+    //@RequiresPermissions("product:skuinfo:save")
+    public R save(@RequestBody SkuInfoEntity skuInfo){
+		skuInfoService.save(skuInfo);
+
+        return R.ok();
+    }
+
+    /**
+     * 修改
+     */
+    @RequestMapping("/update")
+    //@RequiresPermissions("product:skuinfo:update")
+    public R update(@RequestBody SkuInfoEntity skuInfo){
+		skuInfoService.updateById(skuInfo);
+
+        return R.ok();
+    }
+
+    /**
+     * 删除
+     */
+    @RequestMapping("/delete")
+    //@RequiresPermissions("product:skuinfo:delete")
+    public R delete(@RequestBody Long[] skuIds){
+		skuInfoService.removeByIds(Arrays.asList(skuIds));
+
+        return R.ok();
+    }
+    // 远程调用
+    @RequestMapping("/getTotcalPrice")
+    //@RequiresPermissions("product:skuinfo:delete")
+    public BigDecimal getTotcalPrice(@RequestBody List<SkuTotalPriceTO> skus){
+        BigDecimal totalPrice = skuInfoService.getTotalPrice(skus);
+        return totalPrice;
+    }
+}
