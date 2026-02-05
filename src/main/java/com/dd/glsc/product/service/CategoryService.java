@@ -52,6 +52,6 @@ public interface CategoryService extends IService<CategoryEntity> {
      * 获取分类数据，封装成指定格式的JSON
      * @return
      */
-    Map<String, List<Catelog2VO>> getCatelogJson();
+    Map<String, List<Catelog2VO>> getCatelog();
 }
 

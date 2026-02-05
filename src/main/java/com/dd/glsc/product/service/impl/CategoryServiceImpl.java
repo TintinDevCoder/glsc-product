@@ -1,10 +1,13 @@
 package com.dd.glsc.product.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.dd.common.common.BusinessException;
 import com.dd.common.common.ErrorCode;
 import com.dd.glsc.product.entity.vo.CategoryVO;
 import com.dd.glsc.product.entity.vo.Catelog2VO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,11 +22,13 @@ import com.dd.common.utils.Query;
 import com.dd.glsc.product.dao.CategoryDao;
 import com.dd.glsc.product.entity.CategoryEntity;
 import com.dd.glsc.product.service.CategoryService;
+import org.thymeleaf.util.StringUtils;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
-
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     @Override
     public List<Long> findCategoryPath(Long catId3) {
         List<Long> result = new LinkedList<>();
@@ -54,11 +59,31 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     /**
-     * 获取分类数据，封装成指定格式的JSON（后端自处理，20ms左右）
+     * 获取分类数据
      * @return
      */
     @Override
-    public Map<String, List<Catelog2VO>> getCatelogJson() {
+    public Map<String, List<Catelog2VO>> getCatelog() {
+        //从缓存得到
+        String catelogJSON = stringRedisTemplate.opsForValue().get("catelogJSON");
+        // 缓存中没有
+        if (StringUtils.isEmpty(catelogJSON)) {
+            // 从数据库查
+            Map<String, List<Catelog2VO>> catelogFromDb = getCatelogFromDb1();
+            // 放入缓存
+            String jsonStr = JSONUtil.toJsonStr(catelogFromDb);
+            stringRedisTemplate.opsForValue().set("catelogJSON", jsonStr);
+            return catelogFromDb;
+        }
+        // 缓存中有
+        Map<String, List<Catelog2VO>> result = JSONUtil.toBean(catelogJSON, Map.class);
+        return result;
+    }
+    /**
+     * 获取分类数据，封装成指定格式的JSON（后端自处理，20ms左右）
+     * @return
+     */
+    public Map<String, List<Catelog2VO>> getCatelogFromDb1() {
         List<CategoryEntity> allCatelog = this.list();
         List<CategoryEntity> level1Catelog = allCatelog.stream()
                 .filter(categoryEntity -> categoryEntity.getCatLevel() == 1)
@@ -66,47 +91,46 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 封装数据
         Map<String, List<Catelog2VO>> catalogJson = level1Catelog.stream().collect(
                 Collectors.toMap(
-                k->k.getCatId().toString(),
-                v->{
-            // 1级分类id
-            Long catId = v.getCatId();
-            // 2级分类
-            List<CategoryEntity> level2Catelog = allCatelog.stream()
-                    .filter(categoryEntity1 -> categoryEntity1.getParentCid().equals(catId))
-                    .collect(Collectors.toList());
-            // 封装2级分类
-            List<Catelog2VO> collect = level2Catelog.stream().map(level2 -> {
-                Catelog2VO catelog2VO = new Catelog2VO();
-                catelog2VO.setId(level2.getCatId());
-                catelog2VO.setName(level2.getName());
-                catelog2VO.setCatalog1Id(catId);
+                        k->k.getCatId().toString(),
+                        v->{
+                            // 1级分类id
+                            Long catId = v.getCatId();
+                            // 2级分类
+                            List<CategoryEntity> level2Catelog = allCatelog.stream()
+                                    .filter(categoryEntity1 -> categoryEntity1.getParentCid().equals(catId))
+                                    .collect(Collectors.toList());
+                            // 封装2级分类
+                            List<Catelog2VO> collect = level2Catelog.stream().map(level2 -> {
+                                Catelog2VO catelog2VO = new Catelog2VO();
+                                catelog2VO.setId(level2.getCatId());
+                                catelog2VO.setName(level2.getName());
+                                catelog2VO.setCatalog1Id(catId);
 
-                Long catId2 = level2.getCatId();
-                // 3级分类
-                List<CategoryEntity> level3Catelog = allCatelog.stream()
-                        .filter(categoryEntity2 -> categoryEntity2.getParentCid().equals(catId2))
-                        .collect(Collectors.toList());
-                // 封装3级分类
-                List<Catelog2VO.Catelog3VO> catelog3VOList = level3Catelog.stream().map(level3 -> {
-                    Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO();
-                    catelog3VO.setId(level3.getCatId());
-                    catelog3VO.setName(level3.getName());
-                    catelog3VO.setCatalog2Id(catId2);
-                    return catelog3VO;
-                }).collect(Collectors.toList());
-                catelog2VO.setCatalog3List(catelog3VOList);
-                return catelog2VO;
-            }).collect(Collectors.toList());
-            return collect;
-        }));
+                                Long catId2 = level2.getCatId();
+                                // 3级分类
+                                List<CategoryEntity> level3Catelog = allCatelog.stream()
+                                        .filter(categoryEntity2 -> categoryEntity2.getParentCid().equals(catId2))
+                                        .collect(Collectors.toList());
+                                // 封装3级分类
+                                List<Catelog2VO.Catelog3VO> catelog3VOList = level3Catelog.stream().map(level3 -> {
+                                    Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO();
+                                    catelog3VO.setId(level3.getCatId());
+                                    catelog3VO.setName(level3.getName());
+                                    catelog3VO.setCatalog2Id(catId2);
+                                    return catelog3VO;
+                                }).collect(Collectors.toList());
+                                catelog2VO.setCatalog3List(catelog3VOList);
+                                return catelog2VO;
+                            }).collect(Collectors.toList());
+                            return collect;
+                        }));
         return catalogJson;
     }
-
     /**
      * 150ms 内完成（首次1.3s）
      * @return
      */
-    public Map<String, List<Catelog2VO>> getCatelogJson2() {
+    public Map<String, List<Catelog2VO>> getCatelogFromDb2() {
         List<CategoryEntity> level1Categories = this.getLevel1Categories();
         Map<String, List<Catelog2VO>> result = level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             List<CategoryEntity> level2 = baseMapper.selectList(new QueryWrapper<CategoryEntity>().lambda().eq(CategoryEntity::getParentCid, v.getCatId()));
